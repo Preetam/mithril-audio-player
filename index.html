@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="googlebot" content="noindex, nofollow">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  
+
+  
+  
+  
+
+  
+
+  <script type="text/javascript" src="/js/lib/dummy.js"></script>
+
+  
+
+  
+
+  
+
+  
+    <link rel="stylesheet" type="text/css" href="/css/result-light.css">
+  
+
+  
+    
+      <script type="text/javascript" src="//unpkg.com/mithril/mithril.js"></script>
+    
+  
+
+  <style type="text/css">
+    body {
+  font-family: sans-serif;
+}
+
+.player-container {
+  background-color: #333;
+  color: white;
+  width: 400px;
+  position: relative;
+  height: 80px;
+  border: 1px solid black;
+}
+
+.timestamp {
+  margin: 0 1rem;
+}
+
+.player-progress {
+  height: 40px;
+  position: absolute;
+  background-color: #222;
+}
+
+.slider {
+  width: 100%;
+  height: 40px;
+  z-index: 1;
+  position: absolute;
+  margin: 0;
+  display: block;
+  -webkit-appearance: none;
+  appearance: none;
+  outline: none;
+  opacity: 0;
+  background: transparent;
+}
+
+.slider::-webkit-slider-thumb {
+  appearance: none;
+}
+
+.slider::-moz-range-thumb {
+  appearance: none;
+  background: #333;
+  width: 0px;
+  height: 40px;
+}
+
+.audio-button {
+  display: inline-block;
+  padding: 0;
+  margin: 0;
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  font-size: 20px;
+  background-color: #333;
+  color: white;
+  text-align: center;
+  cursor: pointer;
+}
+
+  </style>
+
+  <title></title>
+
+  
+    
+
+
+
+
+<script type='text/javascript'>//<![CDATA[
+window.onload=function(){
+function seconds_to_hhmmss(t) {
+  if (isNaN(t)) return '-:--';
+  var h = parseInt(t / 3600);
+  var m = parseInt(t / 60) % 60;
+  var s = parseInt(t % 60);
+  return (h ? h + ':' : '') + (h ? ('0' + m).slice(-2) : m) + ':' + ('0' + s).slice(-2);
+}
+
+var Player = function(src) {
+  this.src = src;
+  this.oninit = (function(vnode) {
+    vnode.state.playing = false;
+    vnode.state.progress = 0;
+    vnode.state.progressSeconds = 0;
+    vnode.state.duration = 0;
+  }).bind(this);
+  this.view = (function(vnode) {
+    return m("div.player-container", [
+      m("div.audio-button", {
+        onclick: function(v) {
+          vnode.state.playing = !vnode.state.playing;
+          var audioElem = v.target.parentNode.querySelector("audio");
+          if (vnode.state.playing) {
+            audioElem.play();
+          } else {
+            audioElem.pause();
+          }
+        }
+      }, vnode.state.playing ? "||" : ">"),
+      m("span.timestamp", seconds_to_hhmmss(vnode.state.progressSeconds) + " / " +
+        seconds_to_hhmmss(vnode.state.duration)),
+      m("div.player-progress", {
+        style: {
+          width: vnode.state.progress * 100 + "%"
+        }
+      }, ""),
+      m("input", {
+        class: "slider",
+        type: "range",
+        min: 0,
+        max: 100,
+        value: vnode.state.progress * 100,
+        onchange: function(v) {
+          var audioElem = v.target.parentNode.querySelector("audio");
+          var progressPercent = v.target.valueAsNumber;
+          var seconds = audioElem.duration * progressPercent / 100;
+          audioElem.currentTime = seconds;
+          v.redraw = false;
+        }
+      }, ""),
+      m("audio", {
+        controls: false,
+        src: this.src,
+        ontimeupdate: (function(v) {
+          var target = v.target;
+          this.progress = target.currentTime / target.duration;
+          this.progressSeconds = target.currentTime;
+          this.duration = target.duration;
+        }).bind(vnode.state),
+        onplay: (function(v) {
+          this.playing = true;
+        }).bind(vnode.state),
+        onpause: (function(v) {
+          this.playing = false;
+        }).bind(vnode.state),
+      }, "")
+    ])
+  }).bind(this);
+}
+
+
+m.mount(document.getElementById("app"),
+  new Player("https://preetam-guitar.nyc3.digitaloceanspaces.com/stairway_solo.mp3"))
+
+}//]]> 
+
+</script>
+
+  
+</head>
+
+<body>
+  <div id="app">
+
+</div>
+
+  
+  <script>
+  // tell the embed parent frame the height of the content
+  if (window.parent && window.parent.parent){
+    window.parent.parent.postMessage(["resultsFrame", {
+      height: document.body.getBoundingClientRect().height,
+      slug: "None"
+    }], "*")
+  }
+</script>
+
+</body>
+
+</html>
+
